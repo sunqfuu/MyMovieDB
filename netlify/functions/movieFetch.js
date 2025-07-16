@@ -8,9 +8,9 @@ exports.handler = async (event, context) => {
 
   let omdbUrl;
   if (searchTerm) {
-    omdbUrl = `http://www.omdbapi.com/?apikey=${API_KEY}&s=${searchTerm}&type=movie`;
+    omdbUrl = `https://www.omdbapi.com/?apikey=${API_KEY}&s=${searchTerm}&type=movie`;
   } else if (imdbId) {
-    omdbUrl = `http://www.omdbapi.com/?apikey=${API_KEY}&i=${imdbId}`;
+    omdbUrl = `https://www.omdbapi.com/?apikey=${API_KEY}&i=${imdbId}`;
   } else {
     return {
       statusCode: 400,
