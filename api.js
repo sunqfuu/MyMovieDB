@@ -22,16 +22,14 @@ export async function getMoviesBySearchTerm(searchTerm) {
   return filteredMovies;
 }
 
-'''// Get movie details by IMDB ID & store in cache
+// Get movie details by IMDB ID & store in cache
 export async function getMovieDetailsById(imdbId) {
   try {
     const url = `${API_URL}?imdbId=${imdbId}`;
     const response = await fetch(url);
 
     if (!response.ok) {
-      console.error(`Network response was not ok for ${imdbId}: ${response.status} ${response.statusText}`);
-      const errorText = await response.text();
-      console.error(`Error response body: ${errorText}`);
+      console.error(`Network response was not ok`);
       return null;
     }
 
@@ -46,8 +44,8 @@ export async function getMovieDetailsById(imdbId) {
     updateCache(imdbId, data);
     return data;
   } catch (error) {
-    console.error(`Error fetching movie details for ${imdbId}: `, error);
+    console.error("Error fetching movie details: ", error);
     return null;
   }
-}''
+}
 

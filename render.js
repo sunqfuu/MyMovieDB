@@ -16,16 +16,16 @@ export function renderMovie(movie, isInWatchlist, isLiked) {
               <h2 class="movie-title">${movie.Title}</h2>
             </a>
             <p class="movie-year">${movie.Year}</p>
-            ${movie.imdbRating !== "N/A" 
-              ? `<p class="movie-rating" title="${movie.imdbVotes} Votes">⭐️ ${movie.imdbRating}</p>` 
-              : ''}
-            ${movie.Metascore == "N/A" 
-              ? ''
-              : parseInt(movie.Metascore) < 40 
-                ? `<p class="movie-metascore low">${movie.Metascore}</p>`
-                : parseInt(movie.Metascore) < 60 
-                  ? `<p class="movie-metascore medium">${movie.Metascore}</p>`
-                  : `<p class="movie-metascore high">${movie.Metascore}</p>`}
+            ${movie.imdbRating !== "N/A"
+      ? `<p class="movie-rating" title="${movie.imdbVotes} Votes">⭐️ ${movie.imdbRating}</p>`
+      : ''}
+            ${movie.Metascore == "N/A"
+      ? ''
+      : parseInt(movie.Metascore) < 40
+        ? `<p class="movie-metascore low">${movie.Metascore}</p>`
+        : parseInt(movie.Metascore) < 60
+          ? `<p class="movie-metascore medium">${movie.Metascore}</p>`
+          : `<p class="movie-metascore high">${movie.Metascore}</p>`}
           </div>
           <div class="movie-subhead">
             <p class="movie-runtime">${movie.Runtime}</p>

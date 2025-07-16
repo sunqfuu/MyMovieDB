@@ -122,8 +122,8 @@ async function renderMoviesFromIDs(imdbIDs, searchTerm = null) {
 
   // Handle case where search results were empty or only contained movies that we skipped
   if (!renderedAtLeastOneMovie) {
-    moviesContainer.classList.add('empty');;
-    moviesContainer.innerHTML = '<p class="placeholder-text">We couldn\'t find any results for that search. Please try again.</p>'; oviesContainer.innerHTML = '<p class="placeholder-text">We couldn\'t find any results for that search. Please try again.</p>';
+    moviesContainer.classList.add('empty');
+    moviesContainer.innerHTML = '<p class="placeholder-text">We couldn\'t find any results for that search. Please try again.</p>';
   }
 }
 
