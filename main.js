@@ -43,11 +43,20 @@ document.getElementById('open-top-films').addEventListener('click', function() {
   handleShowTopFilms();
 });
 
-async function handleShowLikes() {  moviesContainer.classList.add('empty');  moviesContainer.innerHTML = '<div class="spinner loading"></div>';  if (likes.size === 0) {    moviesContainer.classList.add('empty');    moviesContainer.innerHTML = '<p class="placeholder-text">You haven\'t liked any movies yet.</p>';    return;  }  await renderMoviesFromIDs(Array.from(likes).reverse());}
+async function handleShowLikes() {
+  moviesContainer.innerHTML = '';
+  
+  if (likes.size === 0) {
+    moviesContainer.classList.add('empty');
+    moviesContainer.innerHTML = '<p class="placeholder-text">You haven\'t liked any movies yet.</p>';
+    return;
+  }
+
+  await renderMoviesFromIDs(Array.from(likes).reverse());
+}
 
 async function handleShowWatchlist() {
-  moviesContainer.classList.add('empty');
-  moviesContainer.innerHTML = '<div class="spinner loading"></div>';
+  moviesContainer.innerHTML = '';
 
   if (watchlist.size === 0) {
     moviesContainer.classList.add('empty');
@@ -59,8 +68,7 @@ async function handleShowWatchlist() {
 }
 
 async function handleShowTopFilms() {
-  moviesContainer.classList.add('empty');
-  moviesContainer.innerHTML = '<div class="spinner loading"></div>';
+  moviesContainer.innerHTML = '';
   await renderMoviesFromIDs(TOP_FILMS);
 }
 
