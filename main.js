@@ -9,14 +9,14 @@ const searchInput = document.getElementById('search-input');
 
 let currentSearchTerm = '';
 
-document.getElementById('search-container').addEventListener('submit', async function(e) {
+document.getElementById('search-container').addEventListener('submit', async function (e) {
   e.preventDefault();
   document.activeElement.blur(); // Remove focus from the search input to dismiss the on-screen keyboard on mobile
   currentSearchTerm = searchInput.value;
   await handleSearch(currentSearchTerm);
 });
 
-document.getElementById('movies-container').addEventListener('click', function(e) {
+document.getElementById('movies-container').addEventListener('click', function (e) {
   const watchlistButton = e.target.closest('.watchlist-button');
   const likeButton = e.target.closest('.like-button');
   if (watchlistButton) {
@@ -28,24 +28,24 @@ document.getElementById('movies-container').addEventListener('click', function(e
   }
 });
 
-document.getElementById('open-watchlist').addEventListener('click', function() {
+document.getElementById('open-watchlist').addEventListener('click', function () {
   searchInput.value = '';
   handleShowWatchlist();
 });
 
-document.getElementById('open-likes').addEventListener('click', function() {
+document.getElementById('open-likes').addEventListener('click', function () {
   searchInput.value = '';
   handleShowLikes();
 });
 
-document.getElementById('open-top-films').addEventListener('click', function() {
+document.getElementById('open-top-films').addEventListener('click', function () {
   searchInput.value = '';
   handleShowTopFilms();
 });
 
 async function handleShowLikes() {
   moviesContainer.innerHTML = '';
-  
+
   if (likes.size === 0) {
     moviesContainer.classList.add('empty');
     moviesContainer.innerHTML = '<p class="placeholder-text">You haven\'t liked any movies yet.</p>';
@@ -69,7 +69,14 @@ async function handleShowWatchlist() {
 
 async function handleShowTopFilms() {
   moviesContainer.innerHTML = '';
-  await renderMoviesFromIDs(TOP_FILMS);
+  console.log('Loading top films:', TOP_FILMS);
+  try {
+    await renderMoviesFromIDs(TOP_FILMS);
+  } catch (error) {
+    console.error('Error loading top films:', error);
+    moviesContainer.classList.add('empty');
+    moviesContainer.innerHTML = '<p class="placeholder-text">Error loading top films. Please try again.</p>';
+  }
 }
 
 async function handleSearch(searchTerm) {
@@ -83,7 +90,7 @@ async function handleSearch(searchTerm) {
   console.log('Search complete');
 }
 
-async function renderMoviesFromIDs(imdbIDs, searchTerm=null) {
+async function renderMoviesFromIDs(imdbIDs, searchTerm = null) {
   let renderedAtLeastOneMovie = false;
   for (const imdbId of imdbIDs) {
     let movieDetails;
