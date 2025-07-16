@@ -12,3 +12,5 @@ __pycache__
 *.swp
 /node_modules
 todo.md
+# Local Netlify folder
+.netlify
