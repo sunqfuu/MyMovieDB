@@ -5,7 +5,7 @@
 exports.handler = async (event, context) => {
   const API_KEY = process.env.OMDB_API_KEY;
   const { searchTerm, imdbId } = event.queryStringParameters;
-  
+
   let omdbUrl;
   if (searchTerm) {
     omdbUrl = `http://www.omdbapi.com/?apikey=${API_KEY}&s=${searchTerm}&type=movie`;
@@ -17,11 +17,11 @@ exports.handler = async (event, context) => {
       body: JSON.stringify({ error: 'Missing searchTerm or imdbId parameter' }),
     };
   }
-  
+
   try {
     const response = await fetch(omdbUrl);
     const data = await response.json();
-    
+
     return {
       statusCode: 200,
       body: JSON.stringify(data),
