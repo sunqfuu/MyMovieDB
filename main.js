@@ -2,21 +2,20 @@ import { getMoviesBySearchTerm } from './api.js';
 import { getMovieDetailsById } from './api.js';
 import { renderMovie } from './render.js';
 import { fetchLists, watchlist, likes, cache, toggleWatchlistStatus, toggleLikeStatus } from './storage.js';
-import { TOP_FILMS } from './top-films.js';
 
 const moviesContainer = document.getElementById('movies-container');
 const searchInput = document.getElementById('search-input');
 
 let currentSearchTerm = '';
 
-document.getElementById('search-container').addEventListener('submit', async function(e) {
+document.getElementById('search-container').addEventListener('submit', async function (e) {
   e.preventDefault();
   document.activeElement.blur(); // Remove focus from the search input to dismiss the on-screen keyboard on mobile
   currentSearchTerm = searchInput.value;
   await handleSearch(currentSearchTerm);
 });
 
-document.getElementById('movies-container').addEventListener('click', function(e) {
+document.getElementById('movies-container').addEventListener('click', function (e) {
   const watchlistButton = e.target.closest('.watchlist-button');
   const likeButton = e.target.closest('.like-button');
   if (watchlistButton) {
@@ -28,24 +27,19 @@ document.getElementById('movies-container').addEventListener('click', function(e
   }
 });
 
-document.getElementById('open-watchlist').addEventListener('click', function() {
+document.getElementById('open-watchlist').addEventListener('click', function () {
   searchInput.value = '';
   handleShowWatchlist();
 });
 
-document.getElementById('open-likes').addEventListener('click', function() {
+document.getElementById('open-likes').addEventListener('click', function () {
   searchInput.value = '';
   handleShowLikes();
 });
 
-document.getElementById('open-top-films').addEventListener('click', function() {
-  searchInput.value = '';
-  handleShowTopFilms();
-});
-
 async function handleShowLikes() {
   moviesContainer.innerHTML = '';
-  
+
   if (likes.size === 0) {
     moviesContainer.classList.add('empty');
     moviesContainer.innerHTML = '<p class="placeholder-text">You haven\'t liked any movies yet.</p>';
@@ -67,11 +61,6 @@ async function handleShowWatchlist() {
   await renderMoviesFromIDs(Array.from(watchlist).reverse());
 }
 
-async function handleShowTopFilms() {
-  moviesContainer.innerHTML = '';
-  await renderMoviesFromIDs(TOP_FILMS);
-}
-
 async function handleSearch(searchTerm) {
   moviesContainer.classList.add('empty');
   moviesContainer.innerHTML = '<div class="spinner loading"></div>';
@@ -83,7 +72,7 @@ async function handleSearch(searchTerm) {
   console.log('Search complete');
 }
 
-async function renderMoviesFromIDs(imdbIDs, searchTerm=null) {
+async function renderMoviesFromIDs(imdbIDs, searchTerm = null) {
   let renderedAtLeastOneMovie = false;
   for (const imdbId of imdbIDs) {
     let movieDetails;
@@ -133,8 +122,8 @@ async function renderMoviesFromIDs(imdbIDs, searchTerm=null) {
 
   // Handle case where search results were empty or only contained movies that we skipped
   if (!renderedAtLeastOneMovie) {
-    moviesContainer.classList.add('empty');
-    moviesContainer.innerHTML = '<p class="placeholder-text">We couldn\'t find any results for that search. Please try again.</p>';
+    moviesContainer.classList.add('empty');;
+    moviesContainer.innerHTML = '<p class="placeholder-text">We couldn\'t find any results for that search. Please try again.</p>'; oviesContainer.innerHTML = '<p class="placeholder-text">We couldn\'t find any results for that search. Please try again.</p>';
   }
 }
 
