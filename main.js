@@ -69,6 +69,9 @@ async function handleShowWatchlist() {
 
 async function handleShowTopFilms() {
   moviesContainer.innerHTML = '';
+  moviesContainer.classList.add('empty');
+  moviesContainer.innerHTML = '<div class="spinner loading"></div>';
+
   console.log('Loading top films:', TOP_FILMS);
   try {
     await renderMoviesFromIDs(TOP_FILMS);
@@ -92,57 +95,70 @@ async function handleSearch(searchTerm) {
 
 async function renderMoviesFromIDs(imdbIDs, searchTerm = null) {
   let renderedAtLeastOneMovie = false;
+  let failedAttempts = 0;
+
   for (const imdbId of imdbIDs) {
-    let movieDetails;
-    let shouldRateLimit = false;
+    try {
+      let movieDetails;
+      let shouldRateLimit = false;
 
-    if (cache[imdbId]) {
-      movieDetails = cache[imdbId];
-    } else {
-      movieDetails = await getMovieDetailsById(imdbId);
-      shouldRateLimit = true;
-    }
+      if (cache[imdbId]) {
+        movieDetails = cache[imdbId];
+      } else {
+        // Add retry logic with delay
+        for (let attempt = 1; attempt <= 3; attempt++) {
+          try {
+            movieDetails = await getMovieDetailsById(imdbId);
+            break;
+          } catch (error) {
+            if (attempt === 3) throw error;
+            await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
+          }
+        }
+        shouldRateLimit = true;
+      }
 
-    if (!movieDetails || !movieDetails.imdbID) {
-      console.error(`Skipping movie ${imdbId} due to failed fetch or error response`);
+      if (!movieDetails || !movieDetails.imdbID) {
+        throw new Error(`Failed to fetch details for movie ${imdbId}`);
+      }
+
+      // It's possible that the search term changed while we were waiting for our promise to resolve
+      // because the underlying API is flaky and can take a while to respond for certain films
+      if (searchTerm && currentSearchTerm !== searchTerm) {
+        console.warn(`Search term changed, skipping render of ${movieDetails.Title} (${imdbId})`);
+        return;
+      }
+
+      // Don't render movies with <50 IMDB votes if the movie year is in the past
+      // This eliminates obscure movies w/o eliminating upcoming movies with no ratings
+      // We early-terminate the loop to avoid unnecessary requests because the results are sorted by votes
+      // Exceptions are made for the first movie, which is always rendered
+      const imdbVotes = parseInt(movieDetails.imdbVotes.replace(/,/g, ''));
+      const currentYear = new Date().getFullYear();
+      if (renderedAtLeastOneMovie && (isNaN(imdbVotes) || imdbVotes < 50) && parseInt(movieDetails.Year) < currentYear) {
+        console.info(`Skipping render of ${movieDetails.Title} (${imdbId}) due to low popularity`);
+        break;
+      }
+
+      renderedAtLeastOneMovie = true;
+      // Remove the search spinner after at least one movie has been rendered
+      const spinner = document.querySelector('.spinner');
+      if (spinner) {
+        spinner.classList.remove('loading');
+      }
+      moviesContainer.classList.remove('empty');
+
+      const movieHtml = renderMovie(movieDetails, watchlist.has(imdbId), likes.has(imdbId));
+      moviesContainer.insertAdjacentHTML('beforeend', movieHtml);
+    } catch (error) {
+      console.error(`Error rendering movie ${imdbId}:`, error);
+      failedAttempts++;
       continue;
     }
-
-    // It's possible that the search term changed while we were waiting for our promise to resolve
-    // because the underlying API is flaky and can take a while to respond for certain films
-    if (searchTerm && currentSearchTerm !== searchTerm) {
-      console.warn(`Search term changed, skipping render of ${movieDetails.Title} (${imdbId})`);
-      return;
-    }
-
-    // Don't render movies with <50 IMDB votes if the movie year is in the past
-    // This eliminates obscure movies w/o eliminating upcoming movies with no ratings
-    // We early-terminate the loop to avoid unnecessary requests because the results are sorted by votes
-    // Exceptions are made for the first movie, which is always rendered
-    const imdbVotes = parseInt(movieDetails.imdbVotes.replace(/,/g, ''));
-    const currentYear = new Date().getFullYear();
-    if (renderedAtLeastOneMovie && (isNaN(imdbVotes) || imdbVotes < 50) && parseInt(movieDetails.Year) < currentYear) {
-      console.info(`Skipping render of ${movieDetails.Title} (${imdbId}) due to low popularity`);
-      break;
-    }
-
-    renderedAtLeastOneMovie = true;
-    // Remove the search spinner after at least one movie has been rendered
-    const spinner = document.querySelector('.spinner');
-    if (spinner) {
-      spinner.classList.remove('loading');
-    }
-    moviesContainer.classList.remove('empty');
-
-    const movieHtml = renderMovie(movieDetails, watchlist.has(imdbId), likes.has(imdbId));
-    moviesContainer.insertAdjacentHTML('beforeend', movieHtml);
   }
 
-  // Handle case where search results were empty or only contained movies that we skipped
+  // Update the empty state message to include failed attempts
   if (!renderedAtLeastOneMovie) {
     moviesContainer.classList.add('empty');
-    moviesContainer.innerHTML = '<p class="placeholder-text">We couldn\'t find any results for that search. Please try again.</p>';
-  }
-}
-
-fetchLists();
+    const message = failedAttempts > 0
+      ? `Unable to load movies. ${failedAttempts} movies failed to load. Please try again.`
